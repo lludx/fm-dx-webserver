@@ -10,8 +10,13 @@ button, input[type="submit"] {
     color: var(--color-main);
 }
 
-button:hover {
+button:hover:not(:disabled) {
     background-color: var(--color-main-bright);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .btn-disabled {
