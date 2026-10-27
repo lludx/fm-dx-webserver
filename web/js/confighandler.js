@@ -6,8 +6,15 @@ $(document).ready(function() {
 
 function submitConfig() {
   updateConfigData(configData);
-  if ($("#password-adminPass").val().length < 1) {
-    alert('You need to fill in the admin password before continuing further.');
+  const tunePassword = $("#password-tunePass").val();
+  const adminPassword = $("#password-adminPass").val();
+  const isStrongPassword = password => password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password);
+  if ((tunePassword && !isStrongPassword(tunePassword)) || (adminPassword && !isStrongPassword(adminPassword))) {
+    alert('New passwords must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.');
     return;
   }
 
@@ -19,8 +26,9 @@ function submitConfig() {
     success: function (message) {
       sendToast('success', 'Data saved!', message, true, true);
     },
-    error: function (error) {
-      console.error(error);
+    error: function (xhr) {
+      const message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : xhr.responseText;
+      sendToast('error', 'Data save failed!', message || 'The settings could not be saved.', true, true);
     }
   });
 }
