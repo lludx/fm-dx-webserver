@@ -2,6 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 const { logDebug, logError, logInfo, logWarn } = require('./console');
+const {
+  ensurePasswordHash,
+  PasswordConfigurationError,
+  PasswordValidationError,
+  validateNewPassword
+} = require('./passwords');
 
 let configName = 'config';
 
@@ -161,6 +167,32 @@ function deepMerge(target, source) {
 
 // Function to update the configuration at runtime
 function configUpdate(newConfig) {
+  if (!newConfig || typeof newConfig !== 'object' || Array.isArray(newConfig)) {
+    throw new PasswordValidationError('Invalid configuration data.');
+  }
+
+  if (newConfig.password !== undefined) {
+    if (!newConfig.password || typeof newConfig.password !== 'object' || Array.isArray(newConfig.password)) {
+      throw new PasswordValidationError('Invalid password configuration.');
+    }
+
+    const passwordUpdates = {};
+    for (const key of ['adminPass', 'tunePass']) {
+      if (newConfig.password[key] === undefined || newConfig.password[key] === '') {
+        if (key === 'adminPass' && !serverConfig.password.adminPass) {
+          throw new PasswordValidationError('An admin password is required and must have at least 8 characters, including uppercase and lowercase letters, a number, and a special character.');
+        }
+        continue;
+      }
+
+      validateNewPassword(newConfig.password[key]);
+      passwordUpdates[key] = ensurePasswordHash(newConfig.password[key]);
+    }
+    newConfig = { ...newConfig, password: passwordUpdates };
+  } else if (!serverConfig.password.adminPass) {
+    throw new PasswordValidationError('An admin password is required and must have at least 8 characters, including uppercase and lowercase letters, a number, and a special character.');
+  }
+
   if (newConfig.webserver && (newConfig.webserver.banlist !== undefined || newConfig.plugins !== undefined)) {
     serverConfig.webserver.banlist = newConfig.webserver.banlist;
     serverConfig.plugins = newConfig.plugins;
@@ -192,10 +224,18 @@ if (configExists()) {
   try {
     const configFile = JSON.parse(configFileContents);
     addMissingFields(configFile, serverConfig); // Add only missing fields from serverConfig
+    if (!configFile.password || typeof configFile.password !== 'object' || Array.isArray(configFile.password)) {
+      throw new PasswordConfigurationError('The config password section must be an object.');
+    }
+    configFile.password.adminPass = ensurePasswordHash(configFile.password.adminPass);
+    configFile.password.tunePass = ensurePasswordHash(configFile.password.tunePass);
     serverConfig = configFile; // Use the updated configFile as the new serverConfig
     configSave(); // Save the merged config back to the file
   } catch (err) {
     logError('Error parsing config file:', err);
+    if (err instanceof PasswordConfigurationError) {
+      throw err;
+    }
   }
 }
 

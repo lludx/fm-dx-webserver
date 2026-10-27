@@ -9,6 +9,7 @@ const https = require('https');
 // File Imports
 const { parseAudioDevice } = require('./stream/parser');
 const { configName, serverConfig, configUpdate, configSave, configExists, configPath } = require('./server_config');
+const { PasswordValidationError, verifyPassword } = require('./passwords');
 const helpers = require('./helpers');
 const tunerProfiles = require('./tuner_profiles');
 const storage = require('./storage');
@@ -191,7 +192,7 @@ const loginAttempts = {}; // Format: { 'ip': { count: 1, lastAttempt: 1234567890
 const MAX_ATTEMPTS = 25;
 const WINDOW_MS = 15 * 60 * 1000; 
 
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
     const ip = req.ip || req.connection.remoteAddress;
     const now = Date.now();
 
@@ -211,13 +212,16 @@ const authenticate = (req, res, next) => {
 
     loginAttempts[ip].lastAttempt = now;
 
-    if (password === serverConfig.password.adminPass) {
+    const isAdmin = await verifyPassword(password, serverConfig.password.adminPass);
+    const isTune = isAdmin ? false : await verifyPassword(password, serverConfig.password.tunePass);
+
+    if (isAdmin) {
         req.session.isAdminAuthenticated = true;
         req.session.isTuneAuthenticated = true;
         logInfo(`User from ${ip} logged in as an administrator.`);
         loginAttempts[ip].count = 0;
         next();
-    } else if (password === serverConfig.password.tunePass) {
+    } else if (isTune) {
         req.session.isAdminAuthenticated = false;
         req.session.isTuneAuthenticated = true;
         logInfo(`User from ${ip} logged in with tune permissions.`);
@@ -312,38 +316,45 @@ router.get('/removeFromBanlist', (req, res) => {
 
 router.post('/saveData', (req, res) => {
     const data = req.body;
-    let firstSetup;
-    if(req.session.isAdminAuthenticated || configExists() === false) {
+    const firstSetup = configExists() === false;
+    if (!req.session.isAdminAuthenticated && !firstSetup) {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return res.status(400).json({ message: 'Invalid configuration data.' });
+    }
+
+    try {
         configUpdate(data);
-        fmdxList.update();
-        
-        if(configExists() === false) {
-            firstSetup = true;
+    } catch (error) {
+        if (error instanceof PasswordValidationError) {
+            return res.status(400).json({ message: error.message });
         }
-        logInfo('Server config changed successfully.');
-        if(firstSetup === true) {
-            res.status(200).send('Data saved successfully!\nPlease, restart the server to load your configuration.');
-        } else {
-            res.status(200).send('Data saved successfully!\nSome settings may need a server restart to apply.');
-        }
+        throw error;
+    }
+
+    fmdxList.update();
+    logInfo('Server config changed successfully.');
+    if (firstSetup) {
+        res.status(200).send('Data saved successfully!\nPlease, restart the server to load your configuration.');
+    } else {
+        res.status(200).send('Data saved successfully!\nSome settings may need a server restart to apply.');
     }
 });
 
 router.get('/getData', (req, res) => {  
     if (configExists() === false) {
-        res.json(serverConfig);
+        const configData = JSON.parse(JSON.stringify(serverConfig));
+        configData.password.adminPass = '';
+        configData.password.tunePass = '';
+        return res.json(configData);
     }
     
     if(req.session.isAdminAuthenticated) {
-        // Check if the file exists
-        fs.access(configPath, fs.constants.F_OK, (err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                // File exists, send it as the response
-                res.sendFile(path.join(__dirname, '../' + configName + '.json'));
-            }
-        });
+        const configData = JSON.parse(JSON.stringify(serverConfig));
+        configData.password.adminPass = '';
+        configData.password.tunePass = '';
+        res.json(configData);
     }
 });
 
