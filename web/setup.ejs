@@ -138,8 +138,9 @@
                             <%- include('_components', {component: 'checkbox', cssClass: '', label: 'Admin lock', id: 'lockToAdmin'}) %><br>
                         </div>
         
-                        <%- include('_components', {component: 'text', cssClass: 'w-150 br-15', placeholder: '', label: 'Tune password', id: 'password-tunePass', password: true}) %>
-                        <%- include('_components', {component: 'text', cssClass: 'w-150 br-15', placeholder: '', label: 'Admin password', id: 'password-adminPass', password: true}) %><br>
+                        <%- include('_components', {component: 'text', cssClass: 'w-150 br-15', placeholder: 'Leave blank to keep current', label: 'Tune password', id: 'password-tunePass', password: true}) %>
+                        <%- include('_components', {component: 'text', cssClass: 'w-150 br-15', placeholder: 'Leave blank to keep current', label: 'Admin password', id: 'password-adminPass', password: true}) %><br>
+                        <p class="text-gray">New passwords must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character. Leave a field blank to keep its current password.</p>
                     </div>
                 </div>
 

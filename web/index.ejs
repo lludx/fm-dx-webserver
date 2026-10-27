@@ -225,8 +225,8 @@
                 <% } %>
 
                 <div class="panel-50 no-bg br-0 h-100 m-0 button-eq">
-                  <% if (device == 'tef') { %><button style="border-radius: 15px 0px 0px 15px;" class="data-eq hide-phone tooltip" aria-label="EQ Filter" data-tooltip="<strong>The cEQ filter can reduce bandwidth below 56 kHz.</strong><br><br>Useful for weak stations next to strong ones,<br>although it may pick up more interference."><span class="text-bold">cEQ</span></button><% } %>
-                  <% if (device == 'xdr') { %><button style="border-radius: 15px 0px 0px 15px;" class="data-eq hide-phone tooltip" aria-label="RF+ Filter" data-tooltip="<strong>The RF+ filter increases gain by 5dB</strong>"><span class="text-bold">RF+</span></button><% } %>
+                  <% if (device == 'tef') { %><button style="border-radius: 15px 0px 0px 15px;" class="data-eq hide-phone tooltip" aria-label="EQ Filter" data-tooltip="<strong>The cEQ filter can reduce bandwidth below 56 kHz.</strong><br><br>Useful for weak stations next to strong ones,<br>although it may pick up more interference." <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">cEQ</span></button><% } %>
+                  <% if (device == 'xdr') { %><button style="border-radius: 15px 0px 0px 15px;" class="data-eq hide-phone tooltip" aria-label="RF+ Filter" data-tooltip="<strong>The RF+ filter increases gain by 5dB</strong>" <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">RF+</span></button><% } %>
                   <% if (device == 'si47xx' && si47xxAgcControl) { %>
                     <div class="no-bg dropdown dropdown-up data-agc hide-phone w-150" id="data-agc" style="margin-right: 15px !important;">
                       <input type="text" placeholder="AGC" readonly tabindex="0">
@@ -240,8 +240,8 @@
                   <% } %>
                 </div>
                 <div class="panel-50 no-bg br-0 h-100 m-0 button-ims">
-                  <% if (device == 'tef') { %><button style="border-radius: 0px 15px 15px 0px;" class="data-ims hide-phone tooltip" aria-label="iMS + Filter" data-tooltip="<strong>The iMS filter reduces multipath audio artifacts.</strong><br><br>It's recommended to leave it on most of the time."><span class="text-bold">iMS</span></button><% } %>
-                  <% if (device == 'xdr') { %><button style="border-radius: 0px 15px 15px 0px;" class="data-ims hide-phone tooltip" aria-label="IF+ Filter" data-tooltip="<strong>The IF+ filter increases gain by 6dB</strong>"><span class="text-bold">IF+</span></button><% } %>
+                  <% if (device == 'tef') { %><button style="border-radius: 0px 15px 15px 0px;" class="data-ims hide-phone tooltip" aria-label="iMS + Filter" data-tooltip="<strong>The iMS filter reduces multipath audio artifacts.</strong><br><br>It's recommended to leave it on most of the time." <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">iMS</span></button><% } %>
+                  <% if (device == 'xdr') { %><button style="border-radius: 0px 15px 15px 0px;" class="data-ims hide-phone tooltip" aria-label="IF+ Filter" data-tooltip="<strong>The IF+ filter increases gain by 6dB</strong>" <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">IF+</span></button><% } %>
                 </div>
               </div>
             </div>
@@ -371,8 +371,8 @@
             
             <p class="flex-phone flex-center">Filters</p>
             <div class="flex-container flex-phone flex-center">
-                <% if (device == 'tef') { %><button class="data-eq tooltip p-10 m-right-5" style="height: 48px" aria-label="EQ Filter" data-tooltip="<strong>The cEQ filter can reduce bandwidth below 56 kHz.</strong><br><br>Useful for weak stations next to strong ones,<br>although it may pick up more interference."><span class="text-bold">cEQ</span></button><% } %>
-                <% if (device == 'xdr') { %><button class="data-eq tooltip p-10 m-right-5" aria-label="RF+ Filter" data-tooltip="<strong>The RF+ filter increases gain by 5dB</strong>"><span class="text-bold">RF+</span></button><% } %>
+                <% if (device == 'tef') { %><button class="data-eq tooltip p-10 m-right-5" style="height: 48px" aria-label="EQ Filter" data-tooltip="<strong>The cEQ filter can reduce bandwidth below 56 kHz.</strong><br><br>Useful for weak stations next to strong ones,<br>although it may pick up more interference." <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">cEQ</span></button><% } %>
+                <% if (device == 'xdr') { %><button class="data-eq tooltip p-10 m-right-5" aria-label="RF+ Filter" data-tooltip="<strong>The RF+ filter increases gain by 5dB</strong>" <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">RF+</span></button><% } %>
                 <% if (device == 'si47xx' && si47xxAgcControl) { %>
                   <div class="no-bg dropdown data-agc w-150" id="data-agc-phone" style="max-height: 48px;">
                     <input type="text" placeholder="AGC" readonly tabindex="0" style="border-radius: 15px;">
@@ -384,8 +384,8 @@
                     </ul>
                   </div>
                 <% } %>
-                <% if (device == 'tef') { %><button class="data-ims tooltip p-10 m-left-5" style="height: 48px;" aria-label="iMS + Filter" data-tooltip="<strong>The iMS filter reduces multipath audio artifacts.</strong><br><br>It's recommended to leave it on most of the time."><span class="text-bold">iMS</span></button><% } %>
-                <% if (device == 'xdr') { %><button class="data-ims tooltip p-10 m-left-5" aria-label="IF+ Filter" data-tooltip="<strong>The IF+ filter increases gain by 6dB</strong>"><span class="text-bold">IF+</span></button><% } %>
+                <% if (device == 'tef') { %><button class="data-ims tooltip p-10 m-left-5" style="height: 48px;" aria-label="iMS + Filter" data-tooltip="<strong>The iMS filter reduces multipath audio artifacts.</strong><br><br>It's recommended to leave it on most of the time." <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">iMS</span></button><% } %>
+                <% if (device == 'xdr') { %><button class="data-ims tooltip p-10 m-left-5" aria-label="IF+ Filter" data-tooltip="<strong>The IF+ filter increases gain by 6dB</strong>" <%= isTuneAuthenticated ? '' : 'disabled' %>><span class="text-bold">IF+</span></button><% } %>
             </div>
 
             <% if (fmlist_integration == true && (fmlist_adminOnly == false || isTuneAuthenticated)) { %>
